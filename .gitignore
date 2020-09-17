@@ -2,3 +2,6 @@
 .vscode
 .env
 app.db
+
+dist
+node_modules

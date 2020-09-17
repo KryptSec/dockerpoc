@@ -41,6 +41,24 @@ Pull the container(s)
 docker pull nginx
 ```
 
+### Node.js
+
+```bash
+curl -sL https://deb.nodesource.com/setup_12.x | sudo bash -
+curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update && sudo apt-get install -y nodejs yarn
+```
+
+#### Compile assets
+
+Drop everything from `appstack/src` into the `src/appstack` folder
+
+```bash
+yarn install
+yarn run build
+```
+
 ### App
 
 ```bash
@@ -75,3 +93,5 @@ https://alembic.sqlalchemy.org/en/latest/autogenerate.html
 https://fastapi.tiangolo.com/advanced/async-sql-databases/
 
 https://pypi.org/project/Starlette-WTF/
+
+https://appstack.bootlab.io/docs-installation.html

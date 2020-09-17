@@ -5,7 +5,7 @@ import uuid
 from random import randint
 
 from fastapi import FastAPI, Request, Depends, HTTPException, status
-# from fastapi.staticfiles import StaticFiles
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse #, JSONResponse
 
@@ -31,7 +31,7 @@ SERIALIZER = URLSafeSerializer(SECRET_KEY)
 db = Database(DATABASE_URL)
 
 app = FastAPI()
-# app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/dist", StaticFiles(directory="dist"), name="dist")
 templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, session_cookie='hi-mom')

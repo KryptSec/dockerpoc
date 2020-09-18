@@ -27,10 +27,11 @@ class Database(Database):
 
     async def user_containers(self, user: User):
         query = select(containers.c).where(containers.c.owner_id == user.id)
-        return [obj.id for obj in await self.fetch_all(query)]
+        for obj in await self.fetch_all(query):
+            yield Container.parse_obj(obj)
 
-    async def add_user_container(self, user: User, container_id: str):
-        query = containers.insert().values(**dict(Container(id=container_id, owner_id=user.id)))
+    async def add_user_container(self, user: User, **kwargs):
+        query = containers.insert().values(**dict(Container(**kwargs)))
         await self.execute(query)
 
     async def remove_user_container(self, container_id: str):

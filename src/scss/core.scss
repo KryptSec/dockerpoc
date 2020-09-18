@@ -1,42 +1,6 @@
-// Theme colors
-$blue: #3A89FF;
-$indigo: #6610f2;
-$purple: #6f42c1;
-$pink: #e83e8c;
-$red: #d9534f;
-$orange: #fd7e14;
-$yellow: #f0ad4e;
-$green: #4BBF73;
-$teal: #20c997;
-$cyan: #1F9BCF;
-
-$white:    #fff;
-$gray-100: #f8f9fa;
-$gray-200: #e9ecef;
-$gray-300: #dee2e6;
-$gray-400: #ced4da;
-$gray-500: #adb5bd;
-$gray-600: #6c757d;
-$gray-700: #495057;
-$gray-800: #343a40;
-$gray-900: #212529;
-$black: #000;
-
-$primary:       $blue;
-$secondary:     $gray-700;
-$tertiary:      darken($blue, 10%);
-$success:       $green;
-$info:          $cyan;
-$warning:       $yellow;
-$danger:        $red;
-$light:         $gray-100;
-$dark:          #354052;
-
-
-$body-bg: #212121;
-$body-color: $gray-300;
-
-$headings-color: $white;
-
-
+@import "variables";
 @import "../appstack/scss/app";
+
+.navbar {
+    background-color: $black;
+}

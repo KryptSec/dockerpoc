@@ -53,7 +53,7 @@ USED_PORTS = [] # Also should be stored in the DB but fuck you ill populate it o
 async def startup():
     await db.connect()
 
-    for c in await docker.containers.list(all=True): # eat my ass
+    async for c in docker.containers.list(all=True): # eat my ass
         for port in c.Ports:
             USED_PORTS.append(port['PublicPort'])
 
@@ -74,7 +74,7 @@ async def user(request: Request):
     return None
 
 async def check_owns_container(user, container_id):
-    user_containers = await db.user_containers(user)
+    user_containers = [x.id async for x in db.user_containers(user)]
 
     if not container_id in user_containers:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -96,10 +96,30 @@ async def root(request: Request, user = Depends(user)):
     if not user:
         return templates.TemplateResponse('login.html', {'request': request, 'user': user, 'form': StarletteForm(request)})
 
-    user_containers = await db.user_containers(user)
-    containers = [c for c in await docker.containers.list(all=True) if c.Id in user_containers]
+    # this whole bit is trash and slow as shit, needs to be re-thought completely
+    all_containers = [x async for x in docker.containers.list(all=True)]
+    user_containers = [x async for x in db.user_containers(user)]
 
-    return templates.TemplateResponse('home.html', {'request': request, 'user': user, 'containers': containers, 'form': StarletteForm(request), 'avaliable_containers': enumerate(AVALIABLE_CONTAINERS)})
+    containers = []
+    for container in AVALIABLE_CONTAINERS:
+        c = None
+        uc = list(filter(lambda x: x.image == container["image"], user_containers))
+        if uc:
+            c = list(filter(lambda x: x.Id == uc[0].id, all_containers))[0]
+
+            containers.append({
+                "image": container["image"],
+                "running": c.running,
+                "id": c.Id,
+                "ports": c.Ports
+            })
+
+        else:
+            containers.append({
+                "image": container["image"]
+            })
+
+    return templates.TemplateResponse('home.html', {'request': request, 'user': user, 'containers': containers, 'form': StarletteForm(request)})
 
 @app.post('/login')
 @csrf_protect
@@ -122,34 +142,41 @@ async def logout(request: Request):
 
 # "A" "P" "I"
 # Shits a proof of concept I'm not gonna bother with XHR
-@app.post('/container/create')
+@app.post('/container')
 @csrf_protect
-async def create_user_container(request: Request, user = Depends(user)):
+async def user_container_action(request: Request, user = Depends(user)):
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     form = await request.form()
+    action = form.get('action')
+    id = form.get('id')
 
-    c = AVALIABLE_CONTAINERS[int(form['image'])]
+    if not action in ['start', 'restart', 'stop', 'kill', 'remove']:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    if action == 'start' and not id:
+        c = list(filter(lambda x: x["image"] == form.get('image'), AVALIABLE_CONTAINERS))[0]
+        print({
+            'Image': c['image'],
+            'HostConfig': {
+                'PortBindings': {p: [{'HostPort': str(random_port())}] for p in c['ports']}
+            }
+        })
     container = await docker.containers.create({
         'Image': c['image'],
         'HostConfig': {
             'PortBindings': {p: [{'HostPort': str(random_port())}] for p in c['ports']}
         }
-    }, name = f"{user.username}-{c['image']}-{str(uuid.uuid4()).split('-')[0]}")
+        }, name = f"{user.username}-{c['image'].replace(':', '')}-{str(uuid.uuid4()).split('-')[0]}")
 
     await container.start()
 
-    await db.add_user_container(user, container.Id)
+        await db.add_user_container(user, id=container.Id, image=c['image'], owner_id=user.id)
 
-    return RedirectResponse(url=app.url_path_for('root'), status_code=status.HTTP_303_SEE_OTHER)
+        id = container.Id
 
-@app.post('/container/{id}/{action}')
-@csrf_protect
-async def user_container_action(request: Request, id: str, action: str, user = Depends(user)):
-    if not action in ['start', 'restart', 'stop', 'kill', 'remove']:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
+    if id:
     await check_owns_container(user, id)
 
     container = await docker.containers.get(id=id)

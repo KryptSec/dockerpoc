@@ -19,5 +19,6 @@ containers = Table(
     'containers',
     metadata,
     Column('id', String, primary_key=True, index=True),
+    Column('image', String),
     Column('owner_id', Integer, ForeignKey("users.id"))
 )

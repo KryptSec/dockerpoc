@@ -1,0 +1,26 @@
+<nav class="navbar navbar-expand navbar-dark">
+    <a href="{{url_for('root')}}" class="navbar-brand p-0">beans</span> <!-- idfk -->
+
+    <div class="navbar-collapse collapse">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+                {% if user %}
+                <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-toggle="dropdown">
+                    <!-- <img src="{{user.avatar}}" class="avatar img-fluid rounded-circle mr-1" alt="{{user.username}}">  -->
+                    <span>{{user.username}}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <!-- <a class="dropdown-item" href="pages-profile.html"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user align-middle mr-1"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
+                    <a class="dropdown-item" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-pie-chart align-middle mr-1"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg> Analytics</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="pages-settings.html">Settings &amp; Privacy</a>
+                    <a class="dropdown-item" href="#">Help</a> -->
+                    <a class="dropdown-item" href="{{url_for('logout')}}">Sign out</a>
+                </div>
+                {% else %}
+                <a href="{{url_for('login')}}" class="btn btn-primary">Primary</a>
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+</nav>

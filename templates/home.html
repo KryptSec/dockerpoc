@@ -1,72 +1,69 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- get fucked -->
-<style>
-    form {
-        display: inline;
-    }
-</style>
+{% include 'includes/header.html' %}
 
-<p>Hello {{user.username}} <a href="{{url_for('logout')}}">Logout</a></p>
+<main class="content">
+    <div class="container-fluid p-0">
 
-<h3>Your Containers</h3>
-{% if not containers %}
-<i>- dust -</i>
-{% endif %}
-<table>
-    {% for c in containers %}
-    <tr>
-        <td>[{{c.Names[0][1:]}}]</td>
-        <td>[{{c.Image}}][{{c.State}}]</td>
-        <td>Ports:
-            {% for p in c.Ports %}
-            <a href="//{{request.base_url.hostname}}:{{p['PublicPort']}}" target="_blank">{{p['PublicPort']}}</a>
-            {% endfor %}
-        </td>
-        <td>
-            {% if c.running %}
-            <form action="{{url_for('user_container_action', id=c.Id, action='restart')}}" method="POST">
-                {{ form.csrf_token }}
-                <button type="submit">Restart</button>
-            </form>
+        <h1 class="h3 mb-3">Avaliable Containers</h1>
 
-            <form action="{{url_for('user_container_action', id=c.Id, action='stop')}}" method="POST">
-                {{ form.csrf_token }}
-                <button type="submit">Stop</button>
-            </form>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <!-- <div class="card-header">
+                        <h5 class="card-title mb-0">Empty card</h5>
+                    </div> -->
+                    <div class="card-body">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Ports</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in containers %}
+                                <tr>
+                                    <td>{{c.image}}</td>
 
-            <form action="{{url_for('user_container_action', id=c.Id, action='kill')}}" method="POST">
-                {{ form.csrf_token }}
-                <button type="submit">Kill</button>
-            </form>
-            {% else %}
-            <form action="{{url_for('user_container_action', id=c.Id, action='start')}}" method="POST">
-                {{ form.csrf_token }}
-                <button type="submit">Start</button>
-            </form>
-            {% endif %}
-        </td>
-        <td>
-            <form action="{{url_for('user_container_action', id=c.Id, action='remove')}}" method="POST">
-                {{ form.csrf_token }}
-                <button type="submit">REMOVE</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+                                    <td>
+                                        {% for p in c.ports %}
+                                            {{p['PrivatePort']}}
+                                            <i class="fas fa-fw fa-long-arrow-alt-right"></i>
+                                            {% if p['PrivatePort'] == 80 %}
+                                            <a href="//{{request.base_url.hostname}}:{{p['PublicPort']}}" target="_blank">{{p['PublicPort']}}</a>
+                                            {% else %}
+                                            {{request.base_url.hostname}}:{{p['PublicPort']}}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
 
-<h3>Launch new container</h3>
-<form action="{{url_for('create_user_container')}}" method="POST">
-    {{ form.csrf_token }}
-    <select name="image" required>
-        {% for i, c in avaliable_containers %}
-        <option value="{{i}}">{{c.image}}</option>
-        {% endfor %}
-    </select>
+                                    <td>
+                                        <form action="{{url_for('user_container_action')}}" method="POST">
+                                            {{ form.csrf_token }}
+                                            <input type="hidden" name="id" value="{{c.id}}">
+                                            <input type="hidden" name="image" value="{{c.image}}">
 
-    <button type="submit">Launch</button>
-</form>
+                                            <div class="btn-group" role="group">
+                                                <button type="submit" name="action" class="btn btn-success" {{'disabled' if c.running else ''}} value="start">Start</button>
+                                                <button type="submit" name="action" class="btn btn-primary" {{'disabled' if not c.running else ''}} value="restart">Restart</button>
+                                                <button type="submit" name="action" class="btn btn-warning" {{'disabled' if not c.running else ''}} value="stop">Stop</button>
+                                                <button type="submit" name="action" class="btn btn-danger" {{'disabled' if not c.running else ''}} value="kill">Kill</button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
 
 {% endblock %}

@@ -44,6 +44,10 @@ AVALIABLE_CONTAINERS = [
     {
         'image': 'nginx',
         'ports': ['80/tcp']
+    },
+    {
+        'image': 'ssh_demo',
+        'ports': ['22/tcp']
     }
 ]
 

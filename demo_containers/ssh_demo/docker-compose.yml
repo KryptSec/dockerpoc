@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  ssh_demo:
+    build: .
+    image: ssh_demo

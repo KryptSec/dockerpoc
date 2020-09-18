@@ -76,6 +76,14 @@ python3 -c 'from secrets import token_urlsafe;print(token_urlsafe(128))'
 
 move .env.example to .env and put this in `SECRET_KEY`
 
+#### Build Demo Containers
+
+```bash
+docker pull nginx
+```
+
+From the folders in `demo_containers` run `docker-compose build`
+
 ## Run dev server
 
 ```bash

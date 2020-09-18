@@ -6,7 +6,7 @@ class Session(ClientSession):
     def __init__(self, client):
         self.client = client
 
-        super().__init__(connector=UnixConnector(path='/var/run/docker.sock'))
+        super().__init__(connector=UnixConnector(path='/var/run/docker.sock'), raise_for_status=True)
 
     async def _request(self, *args, **kwargs):
         args = list(args)

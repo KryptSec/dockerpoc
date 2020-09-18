@@ -34,7 +34,7 @@ app = FastAPI()
 app.mount("/dist", StaticFiles(directory="dist"), name="dist")
 templates = Jinja2Templates(directory="templates")
 
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, session_cookie='hi-mom')
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, session_cookie='hi-mom', same_site='strict')
 app.add_middleware(CSRFProtectMiddleware, csrf_secret=SECRET_KEY)
 
 docker = Client()

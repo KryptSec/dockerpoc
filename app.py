@@ -167,31 +167,31 @@ async def user_container_action(request: Request, user = Depends(user)):
                 'PortBindings': {p: [{'HostPort': str(random_port())}] for p in c['ports']}
             }
         })
-    container = await docker.containers.create({
-        'Image': c['image'],
-        'HostConfig': {
-            'PortBindings': {p: [{'HostPort': str(random_port())}] for p in c['ports']}
-        }
+        container = await docker.containers.create({
+            'Image': c['image'],
+            'HostConfig': {
+                'PortBindings': {p: [{'HostPort': str(random_port())}] for p in c['ports']}
+            }
         }, name = f"{user.username}-{c['image'].replace(':', '')}-{str(uuid.uuid4()).split('-')[0]}")
 
-    await container.start()
+        await container.start()
 
         await db.add_user_container(user, id=container.Id, image=c['image'], owner_id=user.id)
 
         id = container.Id
 
     if id:
-    await check_owns_container(user, id)
+        await check_owns_container(user, id)
 
-    container = await docker.containers.get(id=id)
+        container = await docker.containers.get(id=id)
 
-    if action == 'remove':
-        await container.kill()
-        await db.remove_user_container(container.Id)
+        if action == 'remove':
+            await container.kill()
+            await db.remove_user_container(container.Id)
 
-        for port in container.Ports:
-            USED_PORTS.remove(port['PublicPort'])
+            for port in container.Ports:
+                USED_PORTS.remove(port['PublicPort'])
 
-    await getattr(container, action)() # this is cheating
+        await getattr(container, action)() # this is cheating
 
     return RedirectResponse(url=app.url_path_for('root'), status_code=status.HTTP_303_SEE_OTHER)

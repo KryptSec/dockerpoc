@@ -15,4 +15,5 @@ class User(Base):
 
 class Container(Base):
     id: str
+    image: str
     owner_id: int

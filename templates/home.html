@@ -24,12 +24,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for c in containers %}
+                                {% for image, c in containers.items() %}
                                 <tr>
-                                    <td>{{c.image}}</td>
+                                    <td>{{image}}</td>
 
                                     <td>
-                                        {% for p in c.ports %}
+                                        {% if c %}
+                                        {% for p in c.Ports %}
                                             {{p['PrivatePort']}}
                                             <i class="fas fa-fw fa-long-arrow-alt-right"></i>
                                             {% if p['PrivatePort'] == 80 %}
@@ -38,13 +39,14 @@
                                             {{request.base_url.hostname}}:{{p['PublicPort']}}
                                             {% endif %}
                                         {% endfor %}
+                                        {% endif %}
                                     </td>
 
                                     <td>
                                         <form action="{{url_for('user_container_action')}}" method="POST">
                                             {{ form.csrf_token }}
-                                            <input type="hidden" name="id" value="{{c.id}}">
-                                            <input type="hidden" name="image" value="{{c.image}}">
+                                            <input type="hidden" name="id" value="{{c.Id}}">
+                                            <input type="hidden" name="image" value="{{image}}">
 
                                             <div class="btn-group" role="group">
                                                 <button type="submit" name="action" class="btn btn-success" {{'disabled' if c.running else ''}} value="start">Start</button>

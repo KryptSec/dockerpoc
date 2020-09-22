@@ -104,24 +104,15 @@ async def root(request: Request, user = Depends(user)):
     all_containers = [x async for x in docker.containers.list(all=True)]
     user_containers = [x async for x in db.user_containers(user)]
 
-    containers = []
+    containers = {}
     for container in AVALIABLE_CONTAINERS:
-        c = None
-        uc = list(filter(lambda x: x.image == container["image"], user_containers))
-        if uc:
-            c = list(filter(lambda x: x.Id == uc[0].id, all_containers))[0]
+        image = container["image"]
 
-            containers.append({
-                "image": container["image"],
-                "running": c.running,
-                "id": c.Id,
-                "ports": c.Ports
-            })
+        if not (uc := list(filter(lambda x: x.image == image, user_containers))):
+            containers[image] = None
+            continue
 
-        else:
-            containers.append({
-                "image": container["image"]
-            })
+        containers[image] = list(filter(lambda x: x.Id == uc[0].id, all_containers))[0]
 
     return templates.TemplateResponse('home.html', {'request': request, 'user': user, 'containers': containers, 'form': StarletteForm(request)})
 
